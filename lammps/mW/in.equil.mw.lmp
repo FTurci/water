@@ -1,0 +1,57 @@
+# Simple mW water simulation
+# initialisation from a disordered configuration
+# Francesco Turci
+# f.turci@bristol.ac.uk
+# February 2025
+
+units		real
+atom_style	atomic
+
+atom_modify     map yes # efficient access when indexing them by their IDs,  useful when using per-atom arrays
+
+variable        dt equal 2.0 #timestep
+variable        tdamp equal 100*${dt}  #relaxation of thermostat/barostat, in time units
+variable        snapshot equal 1000
+variable        warmup equal 10000
+variable        production equal 10000
+variable        mwMass equal 18.015 #grams/mol
+read_data	    disordered.start.data
+
+# get more particles: multiples of 20^3 box.
+replicate ${rep} ${rep} ${rep}
+reset_timestep	0
+
+# mW water model. It is stored in an additional file mW.sw where the various parameters are specified
+# it is a Stillinger-Weber potential
+pair_style sw 
+pair_coeff * * mW.sw mW 
+
+mass		1 ${mwMass}
+
+group		mW type 1
+
+neighbor	    2 bin #Angstroms
+neigh_modify	every 1 delay 4
+
+velocity	mW zero linear
+
+
+# Do a quick energy minimization to remove overlaps
+minimize 1.0e-6 1.0e-8 1000 1000
+
+timestep  ${dt}
+thermo 1000
+dump mydump all atom ${snapshot} dump.atom 
+
+# first an NVT run to start thermalising the velocities
+fix		1 all nvt temp ${T} ${T} ${tdamp}
+
+run             ${warmup}
+unfix 1
+
+# then an NPT run to work at ambient pressure
+
+fix		1 all npt temp ${T} ${T} ${tdamp} iso ${P} ${P} ${tdamp}
+
+run             ${production}
+write_data 	final.water.solute.data

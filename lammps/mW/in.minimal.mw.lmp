@@ -1,0 +1,32 @@
+# Simple mW water simulation
+# initialisation from fcc
+# Francesco Turci
+# f.turci@bristol.ac.uk
+# February 2025
+
+units real
+dimension 3
+boundary p p p
+atom_style atomic
+
+lattice fcc 5.0
+region box block 0 5 0 5 0 5
+create_box 1 box  # Define 1 atom type
+create_atoms 1 random 100 12345 box  # Create 100 atoms randomly
+
+# mW water model. It is stored in an additional file mW.sw where the various parameters are specified
+# it is a Stillinger-Weber potential
+pair_style sw  
+pair_coeff * * mW.sw mW  
+
+mass 1 18.015  # Approximate mass of water molecule in g/mol
+
+velocity all create 300.0 12345 mom yes rot yes dist gaussian
+
+timestep 0.5
+fix 1 all nvt temp 300.0 300.0 0.5
+
+thermo 100
+thermo_style custom step temp pe ke etotal press vol
+
+run 10000
