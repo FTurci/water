@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q romeq
-#PBS -N Rs10P0T426D0.2
+#PBS -N mWater
 #PBS -l walltime=96:00:00
 #PBS -l select=1:ncpus=10
 
