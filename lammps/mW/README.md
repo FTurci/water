@@ -9,6 +9,6 @@ There are two scripts:
     mpirun -np 10 ~/mylammps/src/lmp_mpi -in in.minimal.mw.lmp
 ```
 
-    Replace  `~/mylammps/src/lmp_mpi` with the path to your compiled binary.
+Replace  `~/mylammps/src/lmp_mpi` with the path to your compiled binary.
 
 - `in.equil.mw.lmp` which starts from a provided configuration `disordered.start.data` (which can be replicated to simulate a larger system) and uses command line parameters to run. An example submission script is provided in `sub.sh`.
